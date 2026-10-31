@@ -23,7 +23,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Brush
 import androidx.compose.material.icons.outlined.HelpOutline
@@ -106,19 +105,19 @@ fun AppListScreen(vm: MainViewModel = viewModel()) {
                 },
                 actions = {
                     IconButton(onClick = { menuOpen = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "Menu")
+                        Icon(Icons.Default.MoreVert, contentDescription = "Menú")
                     }
                     DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                         DropdownMenuItem(
-                            text = { Text("Export .mtz to Downloads") },
+                            text = { Text("Exportar .mtz a Descargas") },
                             onClick = { menuOpen = false; vm.exportTheme() },
                         )
                         DropdownMenuItem(
-                            text = { Text("Reset all assignments for this pack") },
+                            text = { Text("Restablecer este paquete") },
                             onClick = { menuOpen = false; vm.clearAssignmentsForCurrentPack() },
                         )
                         DropdownMenuItem(
-                            text = { Text("Reload") },
+                            text = { Text("Recargar") },
                             onClick = { menuOpen = false; vm.reload() },
                         )
                     }
@@ -129,18 +128,11 @@ fun AppListScreen(vm: MainViewModel = viewModel()) {
             )
         },
         floatingActionButton = {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                ExtendedFloatingActionButton(
-                    text = { Text("Wallpaper") },
-                    icon = { Icon(Icons.Default.Wallpaper, contentDescription = null) },
-                    onClick = { vm.openWallpaperPicker(ctx) },
-                )
-                ExtendedFloatingActionButton(
-                    text = { Text("Apply") },
-                    icon = { Icon(Icons.Default.Check, contentDescription = null) },
-                    onClick = { vm.applyTheme(ctx) },
-                )
-            }
+            ExtendedFloatingActionButton(
+                text = { Text("Aplicar") },
+                icon = { Icon(Icons.Default.Check, contentDescription = null) },
+                onClick = { vm.applyTheme(ctx) },
+            )
         },
     ) { padding ->
         Column(
@@ -167,11 +159,11 @@ fun AppListScreen(vm: MainViewModel = viewModel()) {
                 Spacer(Modifier.height(8.dp))
             }
             when {
-                state.loading -> CenteredText("Loading…")
+                state.loading -> CenteredText("Cargando…")
                 state.noPacksInstalled -> CenteredText(
-                    "No icon packs detected. Install one (e.g., Arcticons) and reopen.",
+                    "No se detectó ningún paquete de iconos. Instala uno (ej. Retro Icon Pack) y vuelve a abrir la app.",
                 )
-                state.iconPack == null -> CenteredText("Could not load icon pack.")
+                state.iconPack == null -> CenteredText("No se pudo cargar el paquete de iconos.")
                 else -> {
                     SummaryRow(state)
                     LazyColumn(
@@ -219,7 +211,7 @@ private fun PackHeader(state: UiState, onSelect: (String) -> Unit) {
         ) {
             Column(Modifier.weight(1f)) {
                 Text(
-                    "Icon pack",
+                    "Paquete de iconos",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
                 )
@@ -232,11 +224,11 @@ private fun PackHeader(state: UiState, onSelect: (String) -> Unit) {
                 )
             }
             Box {
-                FilledTonalButton(onClick = { open = true }) { Text("Change") }
+                FilledTonalButton(onClick = { open = true }) { Text("Cambiar") }
                 DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
                     if (state.availablePacks.isEmpty()) {
                         DropdownMenuItem(
-                            text = { Text("No packs found") },
+                            text = { Text("No se encontraron paquetes") },
                             onClick = { open = false },
                             enabled = false,
                         )
@@ -274,13 +266,13 @@ private fun SummaryRow(state: UiState) {
             .padding(horizontal = 16.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        SummaryPill(counts[RowStatus.UNMATCHED] ?: 0, "unmatched", statusColor(RowStatus.UNMATCHED))
+        SummaryPill(counts[RowStatus.UNMATCHED] ?: 0, "sin asignar", statusColor(RowStatus.UNMATCHED))
         SummaryPill(
             (counts[RowStatus.MATCHED] ?: 0) + (counts[RowStatus.MANUAL] ?: 0),
-            "themed",
+            "con icono",
             statusColor(RowStatus.MATCHED),
         )
-        SummaryPill(counts[RowStatus.SKIPPED] ?: 0, "skipped", statusColor(RowStatus.SKIPPED))
+        SummaryPill(counts[RowStatus.SKIPPED] ?: 0, "omitidos", statusColor(RowStatus.SKIPPED))
     }
 }
 
@@ -365,7 +357,7 @@ private fun AppRowCard(
                             shape = RoundedCornerShape(6.dp),
                         ) {
                             Text(
-                                "share",
+                                "compartir",
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 1.dp),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onTertiaryContainer,
@@ -385,10 +377,10 @@ private fun AppRowCard(
 @Composable
 private fun StatusLine(row: AppRow) {
     val (icon: ImageVector, text: String) = when (row.status) {
-        RowStatus.UNMATCHED -> Icons.Outlined.HelpOutline to "no match"
+        RowStatus.UNMATCHED -> Icons.Outlined.HelpOutline to "sin coincidencia"
         RowStatus.MATCHED -> Icons.Outlined.AutoAwesome to (row.assignment?.drawable ?: "auto")
-        RowStatus.MANUAL -> Icons.Outlined.Brush to "custom icon"
-        RowStatus.SKIPPED -> Icons.Outlined.VisibilityOff to "skipped"
+        RowStatus.MANUAL -> Icons.Outlined.Brush to "icono personalizado"
+        RowStatus.SKIPPED -> Icons.Outlined.VisibilityOff to "omitido"
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
@@ -415,11 +407,11 @@ private fun RowActions(
     onReset: () -> Unit,
 ) {
     when (status) {
-        RowStatus.UNMATCHED -> TextButton(onClick = onPick) { Text("Pick") }
-        RowStatus.MANUAL, RowStatus.SKIPPED -> TextButton(onClick = onReset) { Text("Reset") }
+        RowStatus.UNMATCHED -> TextButton(onClick = onPick) { Text("Elegir") }
+        RowStatus.MANUAL, RowStatus.SKIPPED -> TextButton(onClick = onReset) { Text("Restablecer") }
         RowStatus.MATCHED -> Row {
-            TextButton(onClick = onPick) { Text("Pick") }
-            TextButton(onClick = onSkip) { Text("Skip") }
+            TextButton(onClick = onPick) { Text("Elegir") }
+            TextButton(onClick = onSkip) { Text("Omitir") }
         }
     }
 }
