@@ -19,7 +19,6 @@ import de.bitbin.iconpacker.mtz.MtzBuilder
 import de.bitbin.iconpacker.picker.IconBitmapStore
 import de.bitbin.iconpacker.theme.ApplyResult
 import de.bitbin.iconpacker.theme.ThemeApplier
-import de.bitbin.iconpacker.theme.WallpaperLauncher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -86,7 +85,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     loading = false,
                     availablePacks = packs,
                     selectedPack = selected,
-                    statusMessage = "Could not load $selected",
+                    statusMessage = "No se pudo cargar $selected",
                 )
                 return@launch
             }
@@ -132,10 +131,6 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 rows = rows,
             )
         }
-    }
-
-    fun openWallpaperPicker(launchContext: android.content.Context) {
-        WallpaperLauncher.open(launchContext)
     }
 
     fun selectPack(packageName: String) {
@@ -206,7 +201,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         val pack = _state.value.selectedPack ?: return
         viewModelScope.launch {
             val ctx = getApplication<Application>()
-            _state.value = _state.value.copy(statusMessage = "Building theme…")
+            _state.value = _state.value.copy(statusMessage = "Generando tema…")
             val assignments = dao.getAll().filter { it.iconPackPackage == pack }
             val mtzDir = File(ctx.cacheDir, "mtz").apply { mkdirs() }
             val out = File(mtzDir, "icons_${System.currentTimeMillis()}.mtz")
@@ -215,8 +210,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             }
             val result = ThemeApplier.apply(launchContext, out)
             val msg = when (result) {
-                is ApplyResult.Launched -> "Opened via ${result.via}"
-                is ApplyResult.NoHandler -> "No handler. Saved to ${result.exportedTo.absolutePath}"
+                is ApplyResult.Launched -> "Abierto con ${result.via}"
+                is ApplyResult.NoHandler -> "No hay app para abrirlo. Guardado en ${result.exportedTo.absolutePath}"
             }
             _state.value = _state.value.copy(statusMessage = msg)
         }
@@ -226,7 +221,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         val pack = _state.value.selectedPack ?: return
         viewModelScope.launch {
             val ctx = getApplication<Application>()
-            _state.value = _state.value.copy(statusMessage = "Building theme…")
+            _state.value = _state.value.copy(statusMessage = "Generando tema…")
             val assignments = dao.getAll().filter { it.iconPackPackage == pack }
             val mtzDir = File(ctx.cacheDir, "mtz").apply { mkdirs() }
             val out = File(mtzDir, "icons_${System.currentTimeMillis()}.mtz")
@@ -235,7 +230,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             }
             val saved = withContext(Dispatchers.IO) { ThemeApplier.saveToDownloads(ctx, out) }
             _state.value = _state.value.copy(
-                statusMessage = "Saved to ${saved.absolutePath}",
+                statusMessage = "Guardado en ${saved.absolutePath}",
             )
         }
     }
